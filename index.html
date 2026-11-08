@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NutriGlass — Apple Health Nutrition & Lidl Smart Scanner</title>
+  
+  <!-- Apple & PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriGlass">
+  <meta name="theme-color" content="#07090e">
+  <meta name="description" content="Prémiové sledovanie výživy v štýle Apple Glassmorphism a smart Lidl skener s AI OCR">
+  
+  <!-- Manifest & Favicons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <!-- Modern Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient Atmospheric Mesh Glow Background -->
+  <div class="ambient-canvas" aria-hidden="true">
+    <div class="glow-orb orb-primary"></div>
+    <div class="glow-orb orb-secondary"></div>
+    <div class="glow-orb orb-tertiary"></div>
+  </div>
+
+  <div class="app-viewport">
+    <!-- Top Floating Glass Navigation Header -->
+    <header class="glass-header">
+      <div class="header-branding">
+        <div class="brand-logo-ring">
+          <svg viewBox="0 0 32 32" class="mini-halo-svg">
+            <circle cx="16" cy="16" r="13" stroke="rgba(255,94,58,0.25)" stroke-width="3" fill="none"/>
+            <circle cx="16" cy="16" r="13" stroke="url(#miniCalGrad)" stroke-width="3" fill="none" stroke-dasharray="82" stroke-dashoffset="25" stroke-linecap="round"/>
+            <circle cx="16" cy="16" r="9" stroke="rgba(10,132,255,0.25)" stroke-width="2.5" fill="none"/>
+            <circle cx="16" cy="16" r="9" stroke="url(#miniProteinGrad)" stroke-width="2.5" fill="none" stroke-dasharray="56" stroke-dashoffset="18" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="miniCalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF5E3A"/>
+                <stop offset="100%" stop-color="#FF2A6D"/>
+              </linearGradient>
+              <linearGradient id="miniProteinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0A84FF"/>
+                <stop offset="100%" stop-color="#5E5CE6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-title-wrap">
+          <h1 class="brand-title">NutriGlass</h1>
+          <span class="brand-badge">visionOS</span>
+        </div>
+      </div>
+
+      <!-- Date Switcher Capsule -->
+      <div class="date-navigator-capsule">
+        <button id="prevDayBtn" class="date-nav-btn" aria-label="Predchádzajúci deň">‹</button>
+        <button id="currentDateBtn" class="current-date-pill">
+          <span class="calendar-icon">📅</span>
+          <span id="dateDisplayLabel">Dnes</span>
+        </button>
+        <button id="nextDayBtn" class="date-nav-btn" aria-label="Nasledujúci deň">›</button>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="glass-icon-btn" title="Prepnúť tmavý/svetlý režim" aria-label="Prepnúť režim">
+          <span class="theme-icon">🌓</span>
+        </button>
+        <button id="profileHeaderBtn" class="glass-icon-btn profile-badge-btn" title="Profil a ciele" aria-label="Profil">
+          <span class="profile-avatar-char" id="headerAvatar">A</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Flow -->
+    <main class="app-content">
+      
+      <!-- ============================================== -->
+      <!-- TAB 1: FEED & APPLE FITNESS RINGS (MAIN DASH)  -->
+      <!-- ============================================== -->
+      <section id="tabFeed" class="tab-pane active" aria-labelledby="navBtnFeed">
+        
+        <!-- Apple Concentric Rings Hero Card -->
+        <div class="glass-card rings-hero-card">
+          <div class="rings-visualization-container">
+            <svg class="apple-rings-svg" viewBox="0 0 320 320">
+              <defs>
+                <!-- Glowing Filter -->
+                <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="5" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                
+                <!-- Ring Gradients -->
+                <linearGradient id="calGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FF5E3A"/>
+                  <stop offset="100%" stop-color="#FF2D55"/>
+                </linearGradient>
+                <linearGradient id="proteinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0A84FF"/>
+                  <stop offset="100%" stop-color="#5E5CE6"/>
+                </linearGradient>
+                <linearGradient id="carbsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFD60A"/>
+                  <stop offset="100%" stop-color="#FF9F0A"/>
+                </linearGradient>
+                <linearGradient id="fatsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FF375F"/>
+                  <stop offset="100%" stop-color="#BF5AF2"/>
+                </linearGradient>
+              </defs>
+
+              <g transform="rotate(-90 160 160)">
+                <!-- Track 1: Calories (r: 130) -->
+                <circle cx="160" cy="160" r="130" class="ring-track cal-track"/>
+                <circle id="ringCal" cx="160" cy="160" r="130" class="ring-fill" stroke="url(#calGradient)" stroke-dasharray="816.8" stroke-dashoffset="816.8"/>
+
+                <!-- Track 2: Protein (r: 104) -->
+                <circle cx="160" cy="160" r="104" class="ring-track protein-track"/>
+                <circle id="ringProtein" cx="160" cy="160" r="104" class="ring-fill" stroke="url(#proteinGradient)" stroke-dasharray="653.4" stroke-dashoffset="653.4"/>
+
+                <!-- Track 3: Carbs (r: 78) -->
+                <circle cx="160" cy="160" r="78" class="ring-track carbs-track"/>
+                <circle id="ringCarbs" cx="160" cy="160" r="78" class="ring-fill" stroke="url(#carbsGradient)" stroke-dasharray="490.1" stroke-dashoffset="490.1"/>
+
+                <!-- Track 4: Fats (r: 54) -->
+                <circle cx="160" cy="160" r="54" class="ring-track fats-track"/>
+                <circle id="ringFats" cx="160" cy="160" r="54" class="ring-fill" stroke="url(#fatsGradient)" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+              </g>
+            </svg>
+
+            <!-- Center Summary Text -->
+            <div class="rings-center-summary">
+              <span class="center-sublabel">Zostáva</span>
+              <div class="center-main-metric">
+                <span id="centerKcalRemaining">2 150</span>
+                <span class="unit-kcal">kcal</span>
+              </div>
+              <div class="center-pill-target">
+                <span id="centerKcalEaten">0</span> / <span id="centerKcalGoal">2 150</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Macro Cards Grid -->
+          <div class="macro-cards-row">
+            <!-- Protein Card -->
+            <div class="macro-glass-card macro-protein">
+              <div class="macro-header">
+                <span class="macro-dot protein-dot"></span>
+                <span class="macro-title">Bielkoviny</span>
+                <span id="proteinPercentBadge" class="macro-percent">0 %</span>
+              </div>
+              <div class="macro-values">
+                <strong id="proteinEatenVal">0</strong>
+                <span class="macro-goal">/ <span id="proteinGoalVal">160</span>g</span>
+              </div>
+              <div class="macro-progress-bar">
+                <div id="proteinProgressBar" class="progress-fill protein-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Carbs Card -->
+            <div class="macro-glass-card macro-carbs">
+              <div class="macro-header">
+                <span class="macro-dot carbs-dot"></span>
+                <span class="macro-title">Sacharidy</span>
+                <span id="carbsPercentBadge" class="macro-percent">0 %</span>
+              </div>
+              <div class="macro-values">
+                <strong id="carbsEatenVal">0</strong>
+                <span class="macro-goal">/ <span id="carbsGoalVal">210</span>g</span>
+              </div>
+              <div class="macro-progress-bar">
+                <div id="carbsProgressBar" class="progress-fill carbs-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Fats Card -->
+            <div class="macro-glass-card macro-fats">
+              <div class="macro-header">
+                <span class="macro-dot fats-dot"></span>
+                <span class="macro-title">Tuky</span>
+                <span id="fatsPercentBadge" class="macro-percent">0 %</span>
+              </div>
+              <div class="macro-values">
+                <strong id="fatsEatenVal">0</strong>
+                <span class="macro-goal">/ <span id="fatsGoalVal">65</span>g</span>
+              </div>
+              <div class="macro-progress-bar">
+                <div id="fatsProgressBar" class="progress-fill fats-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fluid Quick Action Bar -->
+        <div class="quick-action-dock">
+          <button id="quickScanBarcodeBtn" class="dock-action-btn primary-glow">
+            <span class="btn-icon">📷</span>
+            <span class="btn-text">Skenovať kód</span>
+          </button>
+          <button id="quickAiVisionBtn" class="dock-action-btn accent-glow">
+            <span class="btn-icon">📸</span>
+            <span class="btn-text">Odfotiť tabuľku (AI)</span>
+          </button>
+          <button id="quickAddFoodBtn" class="dock-action-btn secondary-glass">
+            <span class="btn-icon">＋</span>
+            <span class="btn-text">Pridať jedlo</span>
+          </button>
+        </div>
+
+        <!-- Fluid Daily Timeline Section -->
+        <section class="timeline-section">
+          <div class="section-glass-header">
+            <div class="section-heading-wrap">
+              <h2 class="section-title">Feed dňa</h2>
+              <span id="feedCountPill" class="glass-pill-sm">0 jedál</span>
+            </div>
+            <div class="section-side-meta">
+              <span id="feedTotalKcalLabel" class="meta-kcal-highlight">0 kcal</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Feed Container -->
+          <div id="dailyTimelineFeed" class="timeline-container">
+            <!-- Populated via JavaScript -->
+          </div>
+
+          <!-- Empty State When No Food Logged -->
+          <div id="feedEmptyState" class="feed-empty-glass hidden">
+            <div class="empty-icon-halo">🥗</div>
+            <h3 class="empty-title">Zatiaľ žiadne záznamy</h3>
+            <p class="empty-desc">Začnite deň skenovaním potraviny z Lidla alebo si vyberte z overených raňajok jedným klikom:</p>
+            
+            <div class="quick-presets-flow">
+              <button class="preset-pill-btn" data-preset="preset-skyr-granola">
+                <span class="preset-emoji">🥣</span>
+                <span class="preset-label">Skyr + High Protein Granola (35g B)</span>
+              </button>
+              <button class="preset-pill-btn" data-preset="preset-ham-bread">
+                <span class="preset-emoji">🥪</span>
+                <span class="preset-label">Pikok Pure šunka + Proteínový chlieb</span>
+              </button>
+              <button class="preset-pill-btn" data-preset="preset-pudding">
+                <span class="preset-emoji">🍮</span>
+                <span class="preset-label">Milbona Protein Puding Čokoláda</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 2: LIDL DATABÁZA & SMART HĽADANIE          -->
+      <!-- ============================================== -->
+      <section id="tabSearch" class="tab-pane" aria-labelledby="navBtnSearch">
+        <div class="search-top-sticky">
+          <!-- Glass Search Input Box -->
+          <div class="glass-search-box">
+            <span class="search-icon">🔍</span>
+            <input type="search" id="foodSearchInput" class="glass-search-input" placeholder="Hľadať Skyr, šunku, kaiserku, EAN..." autocomplete="off">
+            <button id="clearSearchBtn" class="clear-search-btn hidden" aria-label="Vyčistiť">✕</button>
+          </div>
+
+          <!-- Filter Category Pills -->
+          <div class="category-filters-scroll" id="categoryChipsContainer">
+            <button class="filter-chip active" data-category="all">Všetko (207+)</button>
+            <button class="filter-chip" data-category="protein">⚡ High Protein</button>
+            <button class="filter-chip" data-category="dairy">🧀 Pilos Mliečne</button>
+            <button class="filter-chip" data-category="meat">🥩 Pikok Mäso & Šunky</button>
+            <button class="filter-chip" data-category="bakery">🥖 Lidl Pekáreň</button>
+            <button class="filter-chip" data-category="nuts">🥜 Alesto & Orechy</button>
+            <button class="filter-chip" data-category="vegan">🌱 Vemondo Vegan</button>
+            <button class="filter-chip" data-category="custom">⭐ Moje naskenované</button>
+          </div>
+        </div>
+
+        <!-- Food List Grid -->
+        <div id="foodSearchResultsList" class="food-catalog-grid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 3: ZDRAVIE, PURE FOOD SCORE & VODA         -->
+      <!-- ============================================== -->
+      <section id="tabHealth" class="tab-pane" aria-labelledby="navBtnHealth">
+        
+        <!-- Apple Health Insight: Pure Food Score Card -->
+        <div class="glass-card pure-score-card">
+          <div class="pure-card-header">
+            <div class="pure-title-wrap">
+              <span class="pure-badge-tag">Apple Health Insight</span>
+              <h2 class="card-main-title">Pure Food Score™</h2>
+            </div>
+            <div class="pure-score-gauge-ring">
+              <span id="pureScoreNumber">100</span>
+              <span class="pure-score-percent">%</span>
+            </div>
+          </div>
+
+          <p id="pureScoreInsightText" class="pure-insight-text">
+            Vaše dnešné potraviny sú z 96 % bez rizikových chemických aditív a konzervantov. Výborná voľba pre zdravie čriev a redukciu zápalov.
+          </p>
+
+          <!-- Active E-codes Breakdown Pills -->
+          <div class="active-ecodes-section">
+            <span class="ecodes-subheading">Zistené zložky v dnešnom jedle:</span>
+            <div id="activeEcodesContainer" class="ecodes-badges-row">
+              <span class="no-ecodes-pill">🌱 Všetky potraviny sú čisté a bez É-čok</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Micronutrient Tracking Gauges (Apple Style Glass Bars) -->
+        <div class="glass-card micro-gauges-card">
+          <h3 class="card-section-title">Sledovanie mikroživín</h3>
+          <p class="micro-section-desc">Minimalistické indikátory kľúčových zložiek s automatickým varovaním pri prekročení limitu.</p>
+
+          <div class="micro-gauge-list">
+            <!-- Sugar Gauge -->
+            <div class="micro-gauge-item" id="gaugeItemSugar">
+              <div class="micro-gauge-header">
+                <span class="micro-gauge-title">Cukry (z toho jednoduché)</span>
+                <span class="micro-gauge-values"><span id="sugarCurrentVal">0</span> / <span id="sugarMaxVal">35</span> g</span>
+              </div>
+              <div class="micro-bar-track">
+                <div id="sugarBarFill" class="micro-bar-fill fill-amber" style="width: 0%;"></div>
+              </div>
+              <span class="micro-status-hint" id="sugarHint">V norme</span>
+            </div>
+
+            <!-- Sat Fat Gauge -->
+            <div class="micro-gauge-item" id="gaugeItemSatFat">
+              <div class="micro-gauge-header">
+                <span class="micro-gauge-title">Nasýtené mastné kyseliny</span>
+                <span class="micro-gauge-values"><span id="satFatCurrentVal">0</span> / <span id="satFatMaxVal">20</span> g</span>
+              </div>
+              <div class="micro-bar-track">
+                <div id="satFatBarFill" class="micro-bar-fill fill-magenta" style="width: 0%;"></div>
+              </div>
+              <span class="micro-status-hint" id="satFatHint">Optimálny príjem</span>
+            </div>
+
+            <!-- Fiber Gauge -->
+            <div class="micro-gauge-item" id="gaugeItemFiber">
+              <div class="micro-gauge-header">
+                <span class="micro-gauge-title">Vláknina (cieľ pre trávenie)</span>
+                <span class="micro-gauge-values"><span id="fiberCurrentVal">0</span> / <span id="fiberGoalVal">30</span> g</span>
+              </div>
+              <div class="micro-bar-track">
+                <div id="fiberBarFill" class="micro-bar-fill fill-green" style="width: 0%;"></div>
+              </div>
+              <span class="micro-status-hint" id="fiberHint">Cieľ: aspoň 30 g</span>
+            </div>
+
+            <!-- Salt Gauge -->
+            <div class="micro-gauge-item" id="gaugeItemSalt">
+              <div class="micro-gauge-header">
+                <span class="micro-gauge-title">Soľ (sodík)</span>
+                <span class="micro-gauge-values"><span id="saltCurrentVal">0.0</span> / <span id="saltMaxVal">5.0</span> g</span>
+              </div>
+              <div class="micro-bar-track">
+                <div id="saltBarFill" class="micro-bar-fill fill-cyan" style="width: 0%;"></div>
+              </div>
+              <span class="micro-status-hint" id="saltHint">Pod odporúčaným limitom WHO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liquid Glass Hydration Tracker -->
+        <div class="glass-card water-tracker-card">
+          <div class="water-header-row">
+            <div>
+              <span class="pure-badge-tag">Liquid Glass Tracker</span>
+              <h3 class="card-main-title">Hydratácia dňa</h3>
+            </div>
+            <div class="water-main-stat">
+              <span id="waterCurrentDisplay">0</span>
+              <span class="water-goal-sub">/ <span id="waterGoalDisplay">3 000</span> ml</span>
+            </div>
+          </div>
+
+          <!-- Liquid Wave Visualizer -->
+          <div class="water-visual-container">
+            <div class="glass-bottle-silhouette">
+              <div id="liquidWaveFill" class="liquid-wave-layer" style="height: 0%;">
+                <div class="liquid-wave wave-1"></div>
+                <div class="liquid-wave wave-2"></div>
+              </div>
+              <div class="bottle-reflection-overlay"></div>
+              <div class="water-percent-overlay">
+                <span id="waterPercentDisplay">0 %</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Water Action Taps -->
+          <div class="water-actions-grid">
+            <button class="water-tap-btn" data-water="250">
+              <span class="tap-icon">🥛</span>
+              <span class="tap-label">+250 ml</span>
+            </button>
+            <button class="water-tap-btn" data-water="500">
+              <span class="tap-icon">💧</span>
+              <span class="tap-label">+500 ml</span>
+            </button>
+            <button class="water-tap-btn" data-water="750">
+              <span class="tap-icon">🥤</span>
+              <span class="tap-label">+750 ml</span>
+            </button>
+            <button class="water-tap-btn btn-undo" data-water="-250" title="Odobrať 250 ml">
+              <span class="tap-icon">↩</span>
+              <span class="tap-label">-250 ml</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Weight Trend & Mifflin-St Jeor TDEE Curve -->
+        <div class="glass-card weight-trend-card">
+          <div class="weight-card-header">
+            <div>
+              <span class="pure-badge-tag">Telesné metriky</span>
+              <h3 class="card-main-title">Krivka váhy & TDEE</h3>
+            </div>
+            <button id="addWeightLogBtn" class="glass-sm-btn">+ Zaznamenať váhu</button>
+          </div>
+
+          <div class="weight-key-stats-row">
+            <div class="weight-stat-box">
+              <span class="wstat-label">Aktuálna</span>
+              <strong id="wCurrentStat">79.5 kg</strong>
+            </div>
+            <div class="weight-stat-box">
+              <span class="wstat-label">Cieľ</span>
+              <strong id="wTargetStat">75.0 kg</strong>
+            </div>
+            <div class="weight-stat-box">
+              <span class="wstat-label">Do cieľa</span>
+              <strong id="wDeltaStat" class="highlight-coral">-4.5 kg</strong>
+            </div>
+          </div>
+
+          <!-- Interactive Smooth Bezier SVG Chart -->
+          <div class="weight-chart-wrapper">
+            <svg id="weightChartSvg" class="weight-chart-svg" viewBox="0 0 360 140" preserveAspectRatio="none">
+              <!-- Rendered via JS -->
+            </svg>
+          </div>
+
+          <!-- Mifflin-St Jeor Projection Card -->
+          <div class="tdee-projection-box">
+            <div class="tdee-calc-header">
+              <span class="calc-formula-icon">⚡</span>
+              <div class="tdee-calc-title-wrap">
+                <strong>Mifflin-St Jeor kalkulácia</strong>
+                <span id="tdeeBmrSub" class="bmr-sub">BMR: 1 760 kcal · TDEE: 2 420 kcal</span>
+              </div>
+            </div>
+            <p id="tdeeProjectionText" class="tdee-projection-paragraph">
+              Pri kalorickom deficite 500 kcal/deň dosiahnete vašu cieľovú váhu 75.0 kg približne o 63 dní (okolo 10. januára).
+            </p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 4: PROFIL, CIELE & AI NASTAVENIA          -->
+      <!-- ============================================== -->
+      <section id="tabProfile" class="tab-pane" aria-labelledby="navBtnProfile">
+        
+        <div class="glass-card profile-hero-card">
+          <div class="profile-avatar-large" id="avatarLargeDisplay">A</div>
+          <h2 class="profile-name-title" id="profileNameDisplay">Adrian</h2>
+          <span class="profile-goal-badge" id="profileGoalBadge">Redukcia tuku (-20% deficit)</span>
+        </div>
+
+        <!-- Personal Parameters Form -->
+        <div class="glass-card profile-form-card">
+          <h3 class="card-section-title">Telesné parametre</h3>
+
+          <div class="profile-input-grid">
+            <div class="input-field-group">
+              <label for="profNameInput">Meno</label>
+              <input type="text" id="profNameInput" class="glass-input" value="Adrian">
+            </div>
+            <div class="input-field-group">
+              <label for="profGenderInput">Pohlavie</label>
+              <select id="profGenderInput" class="glass-select">
+                <option value="male">Muž</option>
+                <option value="female">Žena</option>
+              </select>
+            </div>
+            <div class="input-field-group">
+              <label for="profAgeInput">Vek (roky)</label>
+              <input type="number" id="profAgeInput" class="glass-input" value="28" min="14" max="100">
+            </div>
+            <div class="input-field-group">
+              <label for="profHeightInput">Výška (cm)</label>
+              <input type="number" id="profHeightInput" class="glass-input" value="180" min="100" max="230">
+            </div>
+            <div class="input-field-group">
+              <label for="profWeightInput">Aktuálna váha (kg)</label>
+              <input type="number" id="profWeightInput" class="glass-input" step="0.1" value="79.5">
+            </div>
+            <div class="input-field-group">
+              <label for="profTargetWeightInput">Cieľová váha (kg)</label>
+              <input type="number" id="profTargetWeightInput" class="glass-input" step="0.1" value="75.0">
+            </div>
+          </div>
+
+          <div class="input-field-group full-width">
+            <label for="profActivityInput">Úroveň dennej aktivity</label>
+            <select id="profActivityInput" class="glass-select">
+              <option value="1.2">Sedavý životný štýl (kancelária, minimálny pohyb)</option>
+              <option value="1.375" selected>Mierna aktivita (1-3 tréningy / prechádzky týždenne)</option>
+              <option value="1.55">Stredná aktivita (3-5 silových tréningov / kardio)</option>
+              <option value="1.725">Vysoká aktivita (6-7 intenzívnych tréningov týždenne)</option>
+              <option value="1.9">Extrémna fyzická záťaž (ťažká manuálna práca + tréning)</option>
+            </select>
+          </div>
+
+          <div class="input-field-group full-width">
+            <label for="profGoalInput">Hlavný cieľ</label>
+            <select id="profGoalInput" class="glass-select">
+              <option value="lose" selected>Chudnutie a redukcia tuku (-20 % kalorický deficit)</option>
+              <option value="maintain">Udržiavanie hmotnosti a vitality (TDEE vyrovnané)</option>
+              <option value="gain">Naberanie svalovej hmoty (+12 % mierny surplus)</option>
+            </select>
+          </div>
+
+          <div class="input-field-group full-width">
+            <label for="profWaterGoalInput">Denný cieľ pitného režimu (ml)</label>
+            <input type="number" id="profWaterGoalInput" class="glass-input" value="3000" step="100">
+          </div>
+
+          <div class="form-actions-row">
+            <button id="recalcTargetsBtn" class="glass-btn-accent">⚡ Automaticky prepočítať makrá (Mifflin)</button>
+          </div>
+        </div>
+
+        <!-- Macro Targets Card -->
+        <div class="glass-card targets-config-card">
+          <h3 class="card-section-title">Nastavenie denného cieľa</h3>
+
+          <div class="macro-target-inputs-grid">
+            <div class="target-field">
+              <label for="targetKcalInput">Kalórie (kcal)</label>
+              <input type="number" id="targetKcalInput" class="glass-input target-kcal-glow" value="2150">
+            </div>
+            <div class="target-field">
+              <label for="targetProteinInput">Bielkoviny (g)</label>
+              <input type="number" id="targetProteinInput" class="glass-input target-p-glow" value="160">
+            </div>
+            <div class="target-field">
+              <label for="targetCarbsInput">Sacharidy (g)</label>
+              <input type="number" id="targetCarbsInput" class="glass-input target-c-glow" value="210">
+            </div>
+            <div class="target-field">
+              <label for="targetFatsInput">Tuky (g)</label>
+              <input type="number" id="targetFatsInput" class="glass-input target-f-glow" value="65">
+            </div>
+          </div>
+
+          <button id="saveProfileBtn" class="glass-btn-primary full-width">Uložiť profil a ciele</button>
+        </div>
+
+        <!-- Google Gemini Vision API Settings -->
+        <div class="glass-card ai-settings-card">
+          <div class="ai-header-wrap">
+            <span class="ai-spark-icon">✨</span>
+            <div>
+              <h3 class="card-section-title">Google Gemini Vision OCR</h3>
+              <p class="ai-subdesc">Priame AI rozpoznávanie nutričných tabuliek a obalov pri fotení kamerou.</p>
+            </div>
+          </div>
+
+          <div class="input-field-group full-width">
+            <label for="geminiApiKeyInput">Google Gemini API Kľúč (voliteľné)</label>
+            <input type="password" id="geminiApiKeyInput" class="glass-input" placeholder="AIzaSy...">
+            <span class="input-help-text">Ak nezadáte kľúč, aplikácia používa vstavaný inteligentný regex parser, ktorý funguje bleskovo aj offline.</span>
+          </div>
+
+          <button id="saveAiKeyBtn" class="glass-sm-btn">Uložiť API kľúč</button>
+        </div>
+
+        <!-- Data Backup & Reset Card -->
+        <div class="glass-card data-management-card">
+          <h3 class="card-section-title">Správa dát & Záloha</h3>
+          <p class="data-mgmt-desc">Všetky dáta sú uložené lokálne na vašom zariadení bezpečne v pamäti prehliadača.</p>
+
+          <div class="data-buttons-row">
+            <button id="exportDataBtn" class="glass-sm-btn">Exportovať zálohu (JSON)</button>
+            <label class="glass-sm-btn file-upload-label">
+              <span>Importovať zálohu</span>
+              <input type="file" id="importDataInput" accept=".json" class="hidden">
+            </label>
+            <button id="resetDataBtn" class="glass-sm-btn btn-danger">Resetovať dáta</button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- FLOATING GLASS CAPSULE BOTTOM NAVIGATION       -->
+    <!-- ============================================== -->
+    <nav class="floating-glass-dock" aria-label="Hlavná navigácia">
+      <div class="dock-pill-track">
+        <button id="navBtnFeed" class="dock-item active" data-tab="tabFeed">
+          <span class="dock-icon">✦</span>
+          <span class="dock-label">Dnes</span>
+        </button>
+
+        <button id="navBtnSearch" class="dock-item" data-tab="tabSearch">
+          <span class="dock-icon">🔍</span>
+          <span class="dock-label">Lidl</span>
+        </button>
+
+        <!-- Center Raised Glowing Camera Scanner Button -->
+        <button id="navBtnScan" class="dock-center-scan-btn" title="Skenovať čiarový kód" aria-label="Skenovať">
+          <div class="scan-btn-glow"></div>
+          <span class="scan-btn-icon">📷</span>
+        </button>
+
+        <button id="navBtnHealth" class="dock-item" data-tab="tabHealth">
+          <span class="dock-icon">💧</span>
+          <span class="dock-label">Zdravie</span>
+        </button>
+
+        <button id="navBtnProfile" class="dock-item" data-tab="tabProfile">
+          <span class="dock-icon">👤</span>
+          <span class="dock-label">Profil</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODALS (Native <dialog closedby="any">)        -->
+  <!-- ============================================== -->
+
+  <!-- 1. SMART SCANNER MODAL -->
+  <dialog id="scannerModal" class="glass-dialog" closedby="any" aria-labelledby="scannerModalTitle">
+    <div class="dialog-glass-container">
+      <div class="dialog-header">
+        <h2 id="scannerModalTitle" class="dialog-title">Smart Lidl Skener</h2>
+        <button class="dialog-close-btn" data-close-dialog="scannerModal" aria-label="Zavrieť">✕</button>
+      </div>
+
+      <div class="scanner-viewfinder-box">
+        <video id="scannerVideo" class="scanner-video" playsinline autoplay muted></video>
+        <canvas id="scannerCanvas" class="hidden"></canvas>
+        
+        <!-- Animated Apple Glass Scanning Guide -->
+        <div class="viewfinder-frame">
+          <div class="laser-scanner-line"></div>
+          <div class="corner-bracket top-left"></div>
+          <div class="corner-bracket top-right"></div>
+          <div class="corner-bracket bottom-left"></div>
+          <div class="corner-bracket bottom-right"></div>
+        </div>
+
+        <div class="scanner-overlay-badge">
+          <span class="scanner-dot"></span>
+          <span id="scannerStatusText">Namierte na čiarový kód...</span>
+        </div>
+      </div>
+
+      <!-- Fallback Actions -->
+      <div class="scanner-fallback-controls">
+        <button id="triggerAiVisionFromScannerBtn" class="glass-btn-accent full-width">
+          📸 Odfotiť výživovú tabuľku (AI Vision)
+        </button>
+
+        <div class="or-separator"><span>alebo zadajte kód ručne</span></div>
+
+        <div class="manual-ean-row">
+          <input type="text" id="manualEanInput" class="glass-input" placeholder="Zadajte EAN (napr. 20726128)" inputmode="numeric">
+          <button id="submitManualEanBtn" class="glass-sm-btn">Hľadať</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 2. AI NUTRITION TABLE & VISION OCR MODAL -->
+  <dialog id="aiVisionModal" class="glass-dialog" closedby="any" aria-labelledby="aiVisionModalTitle">
+    <div class="dialog-glass-container">
+      <div class="dialog-header">
+        <h2 id="aiVisionModalTitle" class="dialog-title">AI Odfotenie Výživovej Tabuľky</h2>
+        <button class="dialog-close-btn" data-close-dialog="aiVisionModal" aria-label="Zavrieť">✕</button>
+      </div>
+
+      <!-- Camera or Image Pick View -->
+      <div id="aiCaptureStep" class="ai-step-pane active">
+        <div class="ai-camera-viewfinder">
+          <video id="aiVideo" class="ai-video-stream" playsinline autoplay muted></video>
+          <canvas id="aiCanvas" class="hidden"></canvas>
+          
+          <div class="ai-frame-overlay">
+            <span class="ai-guide-text">Zamerajte celú tabuľku výživových hodnôt na obale</span>
+          </div>
+        </div>
+
+        <div class="ai-capture-buttons-row">
+          <button id="snapAiPhotoBtn" class="glass-shutter-btn" aria-label="Odfotiť tabuľku">
+            <span class="shutter-inner"></span>
+          </button>
+          
+          <label class="glass-sm-btn file-pick-label">
+            <span>Nahrať z galérie</span>
+            <input type="file" id="aiImageFileInput" accept="image/*" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <!-- AI Analyzing Loader State -->
+      <div id="aiAnalyzingStep" class="ai-step-pane hidden">
+        <div class="ai-loader-container">
+          <div class="quantum-spinner"></div>
+          <h3 class="loader-title">AI analyzuje výživovú tabuľku...</h3>
+          <p class="loader-sub">Extrahujem kalórie, makroživiny, vlákninu a detegujem É-čka.</p>
+        </div>
+      </div>
+
+      <!-- AI Results Glass Preview Sheet -->
+      <div id="aiResultStep" class="ai-step-pane hidden">
+        <div class="ai-extracted-card">
+          <div class="extracted-header">
+            <span class="sparkle-pill">✨ Rozpoznané z fotky</span>
+            <input type="text" id="aiExtractedName" class="glass-input product-name-glow" value="Nový Lidl produkt">
+            <input type="text" id="aiExtractedBrand" class="glass-input product-brand-glow" value="Pilos (Lidl)">
+          </div>
+
+          <div class="extracted-metrics-grid">
+            <div class="metric-cell">
+              <label>Energia (100g)</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedKcal" class="cell-input" value="78">
+                <span class="unit">kcal</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>Bielkoviny</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedProtein" class="cell-input" step="0.1" value="12.0">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>Sacharidy</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedCarbs" class="cell-input" step="0.1" value="4.0">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>z toho Cukry</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedSugar" class="cell-input" step="0.1" value="3.5">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>Tuky</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedFats" class="cell-input" step="0.1" value="0.5">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>z toho Nasýtené</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedSatFat" class="cell-input" step="0.1" value="0.2">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>Vláknina</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedFiber" class="cell-input" step="0.1" value="0.0">
+                <span class="unit">g</span>
+              </div>
+            </div>
+            <div class="metric-cell">
+              <label>Soľ</label>
+              <div class="val-input-wrap">
+                <input type="number" id="aiExtractedSalt" class="cell-input" step="0.01" value="0.15">
+                <span class="unit">g</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="serving-definition-row">
+            <label for="aiExtractedServing">Porcia (veľkosť balenia / ks):</label>
+            <input type="number" id="aiExtractedServing" class="glass-input" value="150">
+            <span class="unit">gramov</span>
+          </div>
+
+          <div class="ai-confirm-actions">
+            <button id="saveAiProductBtn" class="glass-btn-primary full-width">
+              💾 Uložiť do môjho Lidl zoznamu & Zaznamenať
+            </button>
+            <button id="retryAiCaptureBtn" class="glass-sm-btn">Odfotiť znova</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 3. FOOD DETAIL & PORTION LOGGER MODAL -->
+  <dialog id="foodDetailModal" class="glass-dialog" closedby="any" aria-labelledby="foodDetailTitle">
+    <div class="dialog-glass-container">
+      <div class="dialog-header">
+        <h2 id="foodDetailTitle" class="dialog-title">Zaznamenať do denníka</h2>
+        <button class="dialog-close-btn" data-close-dialog="foodDetailModal" aria-label="Zavrieť">✕</button>
+      </div>
+
+      <div class="food-modal-body">
+        <div class="food-banner-glass">
+          <div class="food-main-info">
+            <h3 id="modalFoodName" class="food-name-large">Skyr biely prírodný</h3>
+            <span id="modalFoodBrand" class="food-brand-pill">Pilos (Lidl)</span>
+          </div>
+          <div id="modalPureScoreBadge" class="pure-badge-pill">🌱 100% Čisté</div>
+        </div>
+
+        <!-- Time & Meal Context Selector -->
+        <div class="log-context-box">
+          <div class="context-field">
+            <label for="logTimeInput">Čas jedla</label>
+            <input type="time" id="logTimeInput" class="glass-input time-input">
+          </div>
+          <div class="context-field">
+            <label for="logMealTagSelect">Kontext jedla</label>
+            <select id="logMealTagSelect" class="glass-select">
+              <option value="🌅 Ranný rituál">🌅 Ranný rituál</option>
+              <option value="☕ Dopoludňajší snack">☕ Dopoludňajší snack</option>
+              <option value="🥗 Obed">🥗 Obed</option>
+              <option value="⚡ Predtréningová energia">⚡ Predtréningová energia</option>
+              <option value="🌙 Večera">🌙 Večera</option>
+              <option value="✨ Nočný snack">✨ Nočný snack</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Grams Slider & Quick Buttons -->
+        <div class="portion-selector-box">
+          <div class="portion-header-row">
+            <label for="portionGramsInput">Množstvo v gramoch:</label>
+            <div class="portion-num-wrap">
+              <input type="number" id="portionGramsInput" class="portion-number-input" value="150" min="1" max="2000">
+              <span class="unit-g">g</span>
+            </div>
+          </div>
+
+          <input type="range" id="portionSlider" class="glass-range-slider" min="10" max="500" step="5" value="150">
+
+          <div class="quick-portion-pills" id="quickPortionPills">
+            <button class="portion-pill" data-grams="50">50 g</button>
+            <button class="portion-pill" data-grams="100">100 g</button>
+            <button class="portion-pill active" data-grams="150" id="defaultPortionPill">1 porcia (150g)</button>
+            <button class="portion-pill" data-grams="250">250 g</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Calculated Nutrition Summary Box -->
+        <div class="calculated-summary-card">
+          <div class="summary-total-kcal">
+            <span id="summaryKcalDisplay" class="total-kcal-val">96</span>
+            <span class="total-kcal-label">kcal</span>
+          </div>
+          <div class="summary-macros-grid">
+            <div class="sum-macro-cell">
+              <span class="sum-label protein-label">Bielkoviny</span>
+              <strong id="summaryProteinDisplay">17.7 g</strong>
+            </div>
+            <div class="sum-macro-cell">
+              <span class="sum-label carbs-label">Sacharidy</span>
+              <strong id="summaryCarbsDisplay">5.7 g</strong>
+            </div>
+            <div class="sum-macro-cell">
+              <span class="sum-label fats-label">Tuky</span>
+              <strong id="summaryFatsDisplay">0.3 g</strong>
+            </div>
+            <div class="sum-macro-cell">
+              <span class="sum-label fiber-label">Vláknina</span>
+              <strong id="summaryFiberDisplay">0.0 g</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- E-codes details section if any -->
+        <div id="modalEcodesBox" class="modal-ecodes-box hidden">
+          <span class="ecodes-note-title">Obsiahnuté prísady (É-čka):</span>
+          <div id="modalEcodesPills" class="ecodes-pill-list"></div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="confirmLogFoodBtn" class="glass-btn-primary full-width">
+          ✓ Pridať do dnešného feedu
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 4. E-NUMBER INFO MODAL -->
+  <dialog id="eCodeModal" class="glass-dialog" closedby="any" aria-labelledby="eCodeModalTitle">
+    <div class="dialog-glass-container">
+      <div class="dialog-header">
+        <h2 id="eCodeModalTitle" class="dialog-title">Detail prísady</h2>
+        <button class="dialog-close-btn" data-close-dialog="eCodeModal" aria-label="Zavrieť">✕</button>
+      </div>
+      <div class="ecode-modal-content">
+        <div class="ecode-badge-row">
+          <span id="modalEcodeTag" class="ecode-tag-pill">E250</span>
+          <span id="modalEcodeScoreBadge" class="risk-badge-pill risk-high">Riziko: 5/5</span>
+        </div>
+        <h3 id="modalEcodeName" class="ecode-full-name">Dusitan sodný</h3>
+        <p id="modalEcodeDesc" class="ecode-description-text">Konzervant a stabilizátor farby v údeninách.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 5. RECORD WEIGHT MODAL -->
+  <dialog id="weightModal" class="glass-dialog" closedby="any" aria-labelledby="weightModalTitle">
+    <div class="dialog-glass-container">
+      <div class="dialog-header">
+        <h2 id="weightModalTitle" class="dialog-title">Zaznamenať váhu</h2>
+        <button class="dialog-close-btn" data-close-dialog="weightModal" aria-label="Zavrieť">✕</button>
+      </div>
+      <div class="weight-modal-body">
+        <div class="input-field-group">
+          <label for="weightInputVal">Telesná hmotnosť (kg)</label>
+          <input type="number" id="weightInputVal" class="glass-input weight-big-input" step="0.1" value="79.5">
+        </div>
+        <div class="input-field-group">
+          <label for="weightDateInput">Dátum merania</label>
+          <input type="date" id="weightDateInput" class="glass-input">
+        </div>
+        <button id="saveWeightEntryBtn" class="glass-btn-primary full-width">Uložiť záznam</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- App Data Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2276 @@
+/* ==========================================================================
+   NUTRIGLASS — APPLE GLASSMORPHISM DESIGN SYSTEM (iOS / visionOS)
+   ========================================================================== */
+
+:root {
+  /* Color Palette — Apple Fitness Glowing Accents */
+  --cal-color: #FF5E3A;
+  --cal-color-end: #FF2D55;
+  --cal-glow: rgba(255, 94, 58, 0.35);
+
+  --protein-color: #0A84FF;
+  --protein-color-end: #5E5CE6;
+  --protein-glow: rgba(10, 132, 255, 0.35);
+
+  --carbs-color: #FFD60A;
+  --carbs-color-end: #FF9F0A;
+  --carbs-glow: rgba(255, 159, 10, 0.35);
+
+  --fats-color: #FF375F;
+  --fats-color-end: #BF5AF2;
+  --fats-glow: rgba(191, 90, 242, 0.35);
+
+  --water-color: #00C7BE;
+  --water-color-end: #30B0C7;
+  --water-glow: rgba(0, 199, 190, 0.35);
+
+  --pure-green: #34C759;
+  --pure-yellow: #FFD60A;
+  --pure-red: #FF453A;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  
+  /* Radii */
+  --radius-capsule: 9999px;
+  --radius-card: 24px;
+  --radius-modal: 28px;
+  --radius-btn: 16px;
+  --radius-sm: 12px;
+
+  /* Spring Transitions */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.2s var(--ease-spring);
+  --transition-normal: 0.35s var(--ease-spring);
+}
+
+/* --------------------------------------------------------------------------
+   DARK THEME (OLED VisionOS Deep Ambient Mesh) - DEFAULT
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] {
+  --bg-canvas: #07090e;
+  --bg-mesh-1: rgba(94, 92, 230, 0.16);
+  --bg-mesh-2: rgba(255, 94, 58, 0.12);
+  --bg-mesh-3: rgba(10, 132, 255, 0.14);
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-bg-active: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-light: rgba(255, 255, 255, 0.22);
+  --glass-blur: 24px;
+
+  --card-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --dock-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.68);
+  --text-muted: rgba(255, 255, 255, 0.42);
+
+  --input-bg: rgba(255, 255, 255, 0.07);
+  --input-border: rgba(255, 255, 255, 0.15);
+  --dialog-backdrop: rgba(0, 0, 0, 0.65);
+}
+
+/* --------------------------------------------------------------------------
+   LIGHT THEME (Apple Pure White Frosted Glass)
+   -------------------------------------------------------------------------- */
+html[data-theme="light"] {
+  --bg-canvas: #f4f6fb;
+  --bg-mesh-1: rgba(10, 132, 255, 0.10);
+  --bg-mesh-2: rgba(255, 94, 58, 0.08);
+  --bg-mesh-3: rgba(191, 90, 242, 0.08);
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-hover: rgba(255, 255, 255, 0.88);
+  --glass-bg-active: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-light: rgba(255, 255, 255, 1);
+  --glass-blur: 28px;
+
+  --card-shadow: 0 20px 45px -15px rgba(27, 44, 78, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --dock-shadow: 0 20px 45px -10px rgba(27, 44, 78, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  --text-primary: #0f141c;
+  --text-secondary: rgba(15, 20, 28, 0.72);
+  --text-muted: rgba(15, 20, 28, 0.45);
+
+  --input-bg: rgba(255, 255, 255, 0.6);
+  --input-border: rgba(0, 0, 0, 0.1);
+  --dialog-backdrop: rgba(15, 20, 28, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   RESET & BASE STYLING
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+  line-height: 1.5;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+button, input, select {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   AMBIENT MESH CANVAS
+   -------------------------------------------------------------------------- */
+.ambient-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.7;
+  transform: translateZ(0);
+}
+
+.orb-primary {
+  width: 420px;
+  height: 420px;
+  top: -80px;
+  left: -60px;
+  background: var(--bg-mesh-1);
+}
+
+.orb-secondary {
+  width: 380px;
+  height: 380px;
+  top: 15%;
+  right: -80px;
+  background: var(--bg-mesh-2);
+}
+
+.orb-tertiary {
+  width: 450px;
+  height: 450px;
+  bottom: 10%;
+  left: 10%;
+  background: var(--bg-mesh-3);
+}
+
+/* --------------------------------------------------------------------------
+   VIEWPORT WRAPPER
+   -------------------------------------------------------------------------- */
+.app-viewport {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* --------------------------------------------------------------------------
+   TOP FLOATING GLASS HEADER
+   -------------------------------------------------------------------------- */
+.glass-header {
+  position: sticky;
+  top: calc(10px + env(safe-area-inset-top));
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--card-shadow);
+  margin-top: 10px;
+  margin-bottom: 20px;
+  transition: all var(--transition-normal);
+}
+
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo-ring {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-halo-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--protein-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: var(--radius-capsule);
+  background: rgba(10, 132, 255, 0.15);
+  color: var(--protein-color);
+  border: 1px solid rgba(10, 132, 255, 0.25);
+}
+
+/* Date Navigator */
+.date-navigator-capsule {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-capsule);
+  padding: 2px 4px;
+}
+
+.date-nav-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.date-nav-btn:hover {
+  background: var(--glass-bg-hover);
+  color: var(--text-primary);
+}
+
+.current-date-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.calendar-icon {
+  font-size: 0.85rem;
+}
+
+/* Header Action Buttons */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glass-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.glass-icon-btn:hover {
+  background: var(--glass-bg-hover);
+  transform: scale(1.05);
+}
+
+.glass-icon-btn:active {
+  transform: scale(0.95);
+}
+
+.profile-avatar-char {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--protein-color);
+}
+
+/* --------------------------------------------------------------------------
+   GENERIC GLASS CARDS & PILLS
+   -------------------------------------------------------------------------- */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.glass-pill-sm {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   TAB CONTENT SWITCHING
+   -------------------------------------------------------------------------- */
+.tab-pane {
+  display: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tab-pane.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   TAB 1: APPLE CONCENTRIC RINGS HERO CARD
+   -------------------------------------------------------------------------- */
+.rings-hero-card {
+  padding: 24px 16px 20px;
+}
+
+.rings-visualization-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple-rings-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Concentric Tracks */
+.ring-track {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.cal-track {
+  stroke: rgba(255, 94, 58, 0.15);
+  stroke-width: 20;
+}
+
+.protein-track {
+  stroke: rgba(10, 132, 255, 0.15);
+  stroke-width: 18;
+}
+
+.carbs-track {
+  stroke: rgba(255, 214, 10, 0.15);
+  stroke-width: 16;
+}
+
+.fats-track {
+  stroke: rgba(255, 55, 95, 0.15);
+  stroke-width: 14;
+}
+
+/* Animated Ring Fills */
+.ring-fill {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--ease-spring);
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.4));
+}
+
+#ringCal { stroke-width: 20; }
+#ringProtein { stroke-width: 18; }
+#ringCarbs { stroke-width: 16; }
+#ringFats { stroke-width: 14; }
+
+/* Center Text Inside Rings */
+.rings-center-summary {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.center-sublabel {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.center-main-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+#centerKcalRemaining {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.unit-kcal {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.center-pill-target {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 10px;
+  border-radius: var(--radius-capsule);
+  margin-top: 2px;
+}
+
+/* Macro Cards Row */
+.macro-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.macro-glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.macro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.macro-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.protein-dot { background: var(--protein-color); box-shadow: 0 0 8px var(--protein-glow); }
+.carbs-dot { background: var(--carbs-color); box-shadow: 0 0 8px var(--carbs-glow); }
+.fats-dot { background: var(--fats-color); box-shadow: 0 0 8px var(--fats-glow); }
+
+.macro-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-right: auto;
+  margin-left: 5px;
+}
+
+.macro-percent {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.macro-values {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.macro-values strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.macro-goal {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.macro-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--radius-capsule);
+  transition: width 0.6s var(--ease-spring);
+}
+
+.protein-fill { background: linear-gradient(90deg, var(--protein-color), var(--protein-color-end)); }
+.carbs-fill { background: linear-gradient(90deg, var(--carbs-color), var(--carbs-color-end)); }
+.fats-fill { background: linear-gradient(90deg, var(--fats-color), var(--fats-color-end)); }
+
+/* --------------------------------------------------------------------------
+   FLUID QUICK ACTION DOCK
+   -------------------------------------------------------------------------- */
+.quick-action-dock {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.dock-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: var(--radius-btn);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dock-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.dock-action-btn:active {
+  transform: scale(0.96);
+}
+
+.primary-glow {
+  background: linear-gradient(135deg, rgba(255, 94, 58, 0.25), rgba(255, 45, 85, 0.2));
+  border: 1px solid rgba(255, 94, 58, 0.4);
+  color: #fff;
+  box-shadow: 0 8px 24px -6px var(--cal-glow);
+}
+
+.accent-glow {
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.25), rgba(94, 92, 230, 0.2));
+  border: 1px solid rgba(10, 132, 255, 0.4);
+  color: #fff;
+  box-shadow: 0 8px 24px -6px var(--protein-glow);
+}
+
+.secondary-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   FLUID TIMELINE (FEED DŇA)
+   -------------------------------------------------------------------------- */
+.section-glass-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.section-heading-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.meta-kcal-highlight {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--cal-color);
+}
+
+.timeline-container {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline-container::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 20px;
+  left: 9px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--protein-color) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-radius: 2px;
+}
+
+/* Timeline Entry Card */
+.timeline-entry-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-fast);
+}
+
+.timeline-entry-card:hover {
+  transform: translateX(3px);
+}
+
+.timeline-node-dot {
+  position: absolute;
+  top: 20px;
+  left: -24px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--protein-color);
+  box-shadow: 0 0 10px var(--protein-glow);
+  border: 2px solid var(--bg-canvas);
+}
+
+.entry-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.entry-context-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+}
+
+.entry-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.entry-delete-btn {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color var(--transition-fast);
+}
+
+.entry-delete-btn:hover {
+  color: var(--cal-color);
+}
+
+.entry-food-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.entry-brand-tag {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.entry-macros-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.strip-item strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.strip-kcal { color: var(--cal-color); font-weight: 700; }
+.strip-p { color: var(--protein-color); }
+.strip-c { color: var(--carbs-color); }
+.strip-f { color: var(--fats-color); }
+
+.entry-footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+  font-size: 0.75rem;
+}
+
+.pure-pill-mini {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.pure-clean { color: var(--pure-green); }
+.pure-warning { color: var(--pure-yellow); }
+.pure-danger { color: var(--pure-red); }
+
+.budget-impact-pill {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Empty State */
+.feed-empty-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px dashed var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.empty-icon-halo {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.empty-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.empty-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 380px;
+  margin: 0 auto 20px;
+}
+
+.quick-presets-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preset-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.preset-pill-btn:hover {
+  background: var(--glass-bg-hover);
+  transform: translateX(4px);
+}
+
+/* --------------------------------------------------------------------------
+   TAB 2: SEARCH & LIDL CATALOG
+   -------------------------------------------------------------------------- */
+.search-top-sticky {
+  position: sticky;
+  top: calc(75px + env(safe-area-inset-top));
+  z-index: 30;
+  background: rgba(7, 9, 14, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 8px 0 12px;
+  margin-bottom: 14px;
+}
+
+html[data-theme="light"] .search-top-sticky {
+  background: rgba(244, 246, 251, 0.85);
+}
+
+.glass-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-capsule);
+  padding: 10px 16px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 12px;
+}
+
+.search-icon {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.glass-search-input {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.glass-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.clear-search-btn {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.category-filters-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.category-filters-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-capsule);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-chip.active {
+  background: var(--protein-color);
+  color: #fff;
+  border-color: var(--protein-color);
+  box-shadow: 0 4px 14px -3px var(--protein-glow);
+}
+
+.food-catalog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catalog-food-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.catalog-food-card:hover {
+  background: var(--glass-bg-hover);
+  transform: translateY(-2px);
+}
+
+.catalog-food-left {
+  flex: 1;
+}
+
+.catalog-food-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.catalog-food-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.catalog-food-macros {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+
+.catalog-food-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.catalog-kcal-badge {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--cal-color);
+}
+
+.catalog-add-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10, 132, 255, 0.15);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  color: var(--protein-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   TAB 3: APPLE HEALTH INSIGHTS & METRICS
+   -------------------------------------------------------------------------- */
+.pure-badge-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pure-green);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.card-main-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pure-score-card {
+  background: radial-gradient(ellipse at top right, rgba(52, 199, 89, 0.12), transparent 60%), var(--glass-bg);
+}
+
+.pure-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pure-score-gauge-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 3px solid var(--pure-green);
+  box-shadow: 0 0 16px rgba(52, 199, 89, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pureScoreNumber {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.pure-score-percent {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pure-green);
+}
+
+.pure-insight-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.active-ecodes-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.ecodes-subheading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.ecodes-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ecode-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform var(--transition-fast);
+}
+
+.ecode-chip:hover {
+  transform: scale(1.05);
+}
+
+.risk-safe { background: rgba(52, 199, 89, 0.15); color: var(--pure-green); border-color: rgba(52, 199, 89, 0.3); }
+.risk-low { background: rgba(0, 199, 190, 0.15); color: var(--water-color); border-color: rgba(0, 199, 190, 0.3); }
+.risk-med { background: rgba(255, 214, 10, 0.15); color: var(--carbs-color); border-color: rgba(255, 214, 10, 0.3); }
+.risk-high { background: rgba(255, 69, 58, 0.2); color: var(--cal-color); border-color: rgba(255, 69, 58, 0.4); }
+
+.no-ecodes-pill {
+  font-size: 0.8rem;
+  color: var(--pure-green);
+  font-weight: 600;
+}
+
+/* Micronutrient Tracking Gauges */
+.card-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.micro-section-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.micro-gauge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.micro-gauge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.micro-gauge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.micro-gauge-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.micro-gauge-values {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.micro-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.micro-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-capsule);
+  transition: width 0.6s var(--ease-spring);
+}
+
+.fill-amber { background: linear-gradient(90deg, var(--carbs-color), var(--cal-color)); }
+.fill-magenta { background: linear-gradient(90deg, var(--fats-color), var(--fats-color-end)); }
+.fill-green { background: linear-gradient(90deg, var(--water-color), var(--pure-green)); }
+.fill-cyan { background: linear-gradient(90deg, var(--protein-color), var(--water-color)); }
+
+.micro-status-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.warning-glow {
+  color: var(--cal-color) !important;
+  font-weight: 700;
+}
+
+/* Liquid Glass Hydration Tracker */
+.water-tracker-card {
+  background: radial-gradient(ellipse at top left, rgba(0, 199, 190, 0.12), transparent 60%), var(--glass-bg);
+}
+
+.water-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.water-main-stat {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--water-color);
+}
+
+.water-goal-sub {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.water-visual-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 20px;
+}
+
+.glass-bottle-silhouette {
+  position: relative;
+  width: 140px;
+  height: 180px;
+  border-radius: 20px 20px 28px 28px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 20px rgba(0, 199, 190, 0.15), 0 10px 30px -10px rgba(0, 199, 190, 0.3);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.liquid-wave-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(0, 199, 190, 0.6) 0%, rgba(10, 132, 255, 0.85) 100%);
+  transition: height 0.6s var(--ease-spring);
+}
+
+.bottle-reflection-overlay {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 16px;
+  height: 70%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: var(--radius-capsule);
+  pointer-events: none;
+}
+
+.water-percent-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.water-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.water-tap-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.water-tap-btn:hover {
+  background: var(--glass-bg-hover);
+  transform: translateY(-2px);
+}
+
+.water-tap-btn:active {
+  transform: scale(0.94);
+}
+
+.tap-icon {
+  font-size: 1.2rem;
+}
+
+.tap-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.btn-undo {
+  color: var(--text-muted);
+}
+
+/* Weight Trend Chart & Mifflin-St Jeor TDEE */
+.weight-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.weight-key-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.weight-stat-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wstat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.weight-stat-box strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.highlight-coral {
+  color: var(--cal-color);
+}
+
+.weight-chart-wrapper {
+  width: 100%;
+  height: 140px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--glass-border);
+  padding: 8px;
+  margin-bottom: 16px;
+}
+
+.weight-chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tdee-projection-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  padding: 14px;
+}
+
+.tdee-calc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.calc-formula-icon {
+  font-size: 1.3rem;
+  color: var(--carbs-color);
+}
+
+.tdee-calc-title-wrap strong {
+  font-size: 0.95rem;
+  display: block;
+}
+
+.bmr-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.tdee-projection-paragraph {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   TAB 4: PROFIL, CIELE & AI NASTAVENIA
+   -------------------------------------------------------------------------- */
+.profile-hero-card {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.profile-avatar-large {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--protein-color), var(--protein-color-end));
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 10px 25px -5px var(--protein-glow);
+}
+
+.profile-name-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.profile-goal-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--protein-color);
+  background: rgba(10, 132, 255, 0.12);
+  padding: 4px 12px;
+  border-radius: var(--radius-capsule);
+  border: 1px solid rgba(10, 132, 255, 0.25);
+}
+
+.profile-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.input-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.input-field-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.input-field-group.full-width {
+  grid-column: span 2;
+}
+
+.glass-input, .glass-select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-btn);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: border-color var(--transition-fast);
+}
+
+.glass-input:focus, .glass-select:focus {
+  border-color: var(--protein-color);
+  box-shadow: 0 0 10px var(--protein-glow);
+}
+
+.glass-select option {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.macro-target-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.target-field label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.target-kcal-glow:focus { border-color: var(--cal-color); }
+.target-p-glow:focus { border-color: var(--protein-color); }
+.target-c-glow:focus { border-color: var(--carbs-color); }
+.target-f-glow:focus { border-color: var(--fats-color); }
+
+.ai-header-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ai-spark-icon {
+  font-size: 1.5rem;
+  color: var(--protein-color);
+}
+
+.ai-subdesc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.input-help-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.data-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.file-upload-label {
+  cursor: pointer;
+}
+
+/* Generic Buttons */
+.glass-btn-primary {
+  background: linear-gradient(135deg, var(--protein-color), var(--protein-color-end));
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: var(--radius-btn);
+  box-shadow: 0 8px 24px -6px var(--protein-glow);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.glass-btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.glass-btn-accent {
+  background: linear-gradient(135deg, var(--cal-color), var(--cal-color-end));
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: var(--radius-btn);
+  box-shadow: 0 8px 24px -6px var(--cal-glow);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.glass-sm-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.glass-sm-btn:hover {
+  background: var(--glass-bg-hover);
+}
+
+.btn-danger {
+  color: var(--cal-color);
+  border-color: rgba(255, 94, 58, 0.3);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   FLOATING GLASS DOCK (BOTTOM NAVIGATION CAPSULE)
+   -------------------------------------------------------------------------- */
+.floating-glass-dock {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: calc(100% - 32px);
+  max-width: 520px;
+}
+
+.dock-pill-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--dock-shadow);
+  padding: 6px 12px;
+  position: relative;
+}
+
+.dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.dock-item.active {
+  color: var(--text-primary);
+}
+
+.dock-icon {
+  font-size: 1.25rem;
+}
+
+.dock-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.dock-item.active .dock-icon {
+  color: var(--protein-color);
+  transform: scale(1.1);
+}
+
+/* Center Raised Glowing Scan Button */
+.dock-center-scan-btn {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  margin-top: -22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--protein-color), var(--protein-color-end));
+  border: 3px solid var(--bg-canvas);
+  box-shadow: 0 10px 24px var(--protein-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.dock-center-scan-btn:hover {
+  transform: scale(1.08);
+}
+
+.dock-center-scan-btn:active {
+  transform: scale(0.95);
+}
+
+.scan-btn-icon {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.scan-btn-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--protein-color);
+  opacity: 0.35;
+  filter: blur(8px);
+  z-index: -1;
+  animation: pulseScanGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseScanGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+/* --------------------------------------------------------------------------
+   MODERN DIALOGS & TOP-LAYER TRANSITIONS (MODERN WEB GUIDANCE)
+   -------------------------------------------------------------------------- */
+.glass-dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-width: 90vw;
+  width: 520px;
+  margin: auto;
+  color: var(--text-primary);
+  overflow: visible;
+
+  /* Modern top-layer transition setup */
+  opacity: 0;
+  transform: scale(0.92) translateY(12px);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.3s;
+  transition-timing-function: var(--ease-spring);
+  transition-behavior: allow-discrete;
+}
+
+.glass-dialog[open] {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+}
+
+.glass-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.3s;
+  transition-timing-function: var(--ease-spring);
+  transition-behavior: allow-discrete;
+}
+
+.glass-dialog[open]::backdrop {
+  background-color: var(--dialog-backdrop);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  @starting-style {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+.dialog-glass-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-modal);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  padding: 24px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.dialog-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dialog-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.dialog-close-btn:hover {
+  background: var(--glass-bg-hover);
+  color: var(--text-primary);
+}
+
+/* Scanner Viewfinder Box */
+.scanner-viewfinder-box {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 16px;
+}
+
+.scanner-video, .ai-video-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.viewfinder-frame {
+  position: absolute;
+  inset: 30px;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.laser-scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--cal-color);
+  box-shadow: 0 0 12px var(--cal-color), 0 0 24px var(--cal-color);
+  animation: scanLaserAnim 2s infinite ease-in-out alternate;
+}
+
+@keyframes scanLaserAnim {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.corner-bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #fff;
+  border-style: solid;
+}
+
+.top-left { top: 0; left: 0; border-width: 3px 0 0 3px; border-top-left-radius: 8px; }
+.top-right { top: 0; right: 0; border-width: 3px 3px 0 0; border-top-right-radius: 8px; }
+.bottom-left { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px; }
+.bottom-right { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px; }
+
+.scanner-overlay-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-capsule);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.scanner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pure-green);
+  animation: pulseDot 1s infinite alternate;
+}
+
+@keyframes pulseDot {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.or-separator {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 12px 0 8px;
+  position: relative;
+}
+
+.manual-ean-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* AI Camera & Vision UI */
+.ai-step-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ai-camera-viewfinder {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: #000;
+}
+
+.ai-frame-overlay {
+  position: absolute;
+  inset: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+  pointer-events: none;
+}
+
+.ai-guide-text {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: var(--radius-capsule);
+  font-size: 0.78rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ai-capture-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 0;
+}
+
+.glass-shutter-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.2);
+  transition: transform var(--transition-fast);
+}
+
+.glass-shutter-btn:hover {
+  transform: scale(1.06);
+}
+
+.glass-shutter-btn:active {
+  transform: scale(0.92);
+}
+
+.shutter-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* AI Quantum Loader */
+.ai-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.quantum-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(10, 132, 255, 0.2);
+  border-top-color: var(--protein-color);
+  border-right-color: var(--cal-color);
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.loader-sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* AI Extracted Results Preview */
+.ai-extracted-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.extracted-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sparkle-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--protein-color);
+  text-transform: uppercase;
+}
+
+.product-name-glow {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.extracted-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metric-cell {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-cell label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.val-input-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.cell-input {
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.val-input-wrap .unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.serving-definition-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 12px;
+  border-radius: var(--radius-btn);
+}
+
+.ai-confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Food Detail Modal Body */
+.food-banner-glass {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.food-name-large {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.food-brand-pill {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pure-badge-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--pure-green);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+.log-context-box {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.context-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.portion-selector-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.portion-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.portion-num-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.portion-number-input {
+  width: 70px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--protein-color);
+  text-align: right;
+}
+
+.unit-g {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.glass-range-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-capsule);
+  margin-bottom: 12px;
+}
+
+.glass-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.quick-portion-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.portion-pill {
+  padding: 6px 12px;
+  border-radius: var(--radius-capsule);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.portion-pill.active {
+  background: var(--protein-color);
+  color: #fff;
+  border-color: var(--protein-color);
+}
+
+.calculated-summary-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.summary-total-kcal {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.total-kcal-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--cal-color);
+}
+
+.total-kcal-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.summary-macros-grid {
+  display: flex;
+  gap: 12px;
+}
+
+.sum-macro-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.sum-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.protein-label { color: var(--protein-color); }
+.carbs-label { color: var(--carbs-color); }
+.fats-label { color: var(--fats-color); }
+.fiber-label { color: var(--pure-green); }
+
+.modal-ecodes-box {
+  margin-bottom: 16px;
+}
+
+.ecodes-note-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.ecodes-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}
